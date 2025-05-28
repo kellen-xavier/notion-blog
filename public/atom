@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <feed xmlns="http://www.w3.org/2005/Atom">
+    <title>My Blog</title>
+    <subtitle>Blog</subtitle>
+    <link href="/atom" rel="self" type="application/rss+xml"/>
+    <link href="/" />
+    <updated>2025-05-28T03:39:38.458Z</updated>
+    <id>My Notion Blog</id>
+    <entry>
+      <id>/blog/meu-primeiro-post</id>
+      <title>Teste - Sempre um teste</title>
+      <link href="/blog/meu-primeiro-post"/>
+      <updated>2025-05-27T03:00:00.699Z</updated>
+      <content type="xhtml">
+        <div xmlns="http://www.w3.org/1999/xhtml">
+          <p>📝 Um parágrafo curto como introdução.</p><p>
+📝 Segundo parágrafo como resumo.</p>
+          <p class="more">
+            <a href="/blog/meu-primeiro-post">Read more</a>
+          </p>
+        </div>
+      </content>
+      <author><name>Kellen Xavier</name></author>
+    </entry>
+  </feed>
