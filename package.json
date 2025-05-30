@@ -6,7 +6,8 @@
     "start": "next start",
     "build": "next build && node .next/server/build-rss.js",
     "format": "prettier --write \"**/*.{js,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,sass}\" --ignore-path .gitignore",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "vercel-build": "ts-node src/lib/build-rss.ts && next build"
   },
   "pre-commit": "lint-staged",
   "dependencies": {
@@ -27,6 +28,7 @@
     "lint-staged": "10.5.4",
     "pre-commit": "1.2.2",
     "prettier": "2.2.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
 }

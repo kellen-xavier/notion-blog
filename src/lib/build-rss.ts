@@ -1,3 +1,5 @@
+// src/lib/build-rss.ts
+
 import { resolve } from 'path'
 import { writeFile } from './fs-helpers'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -9,19 +11,18 @@ import { postIsPublished, getBlogLink } from './blog-helpers'
 import { loadEnvConfig } from '@next/env'
 import serverConstants from './notion/server-constants'
 
-// must use weird syntax to bypass auto replacing of NODE_ENV
+// Evita substituição de NODE_ENV na Vercel
 process.env['NODE' + '_ENV'] = 'production'
 process.env.USE_CACHE = 'true'
 
-// constants
 const NOW = new Date().toJSON()
 
-function mapToAuthor(author) {
+function mapToAuthor(author: any) {
   return `<author><name>${author.full_name}</name></author>`
 }
 
-function decode(string) {
-  return string
+function decode(str: string) {
+  return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -29,7 +30,7 @@ function decode(string) {
     .replace(/'/g, '&apos;')
 }
 
-function mapToEntry(post) {
+function mapToEntry(post: any) {
   return `
     <entry>
       <id>${post.link}</id>
@@ -40,7 +41,7 @@ function mapToEntry(post) {
         <div xmlns="http://www.w3.org/1999/xhtml">
           ${renderToStaticMarkup(
             post.preview
-              ? (post.preview || []).map((block, idx) =>
+              ? (post.preview || []).map((block: any, idx: number) =>
                   textBlock(block, false, post.title + idx)
                 )
               : post.content
@@ -54,13 +55,8 @@ function mapToEntry(post) {
     </entry>`
 }
 
-function concat(total, item) {
-  return total + item
-}
-
-function createRSS(blogPosts = []) {
-  const postsString = blogPosts.map(mapToEntry).reduce(concat, '')
-
+function createRSS(blogPosts: any[] = []) {
+  const postsString = blogPosts.map(mapToEntry).join('')
   return `<?xml version="1.0" encoding="utf-8"?>
   <feed xmlns="http://www.w3.org/2005/Atom">
     <title>My Blog</title>
@@ -73,25 +69,33 @@ function createRSS(blogPosts = []) {
 }
 
 async function main() {
-  await loadEnvConfig(process.cwd())
-  serverConstants.NOTION_TOKEN = process.env.NOTION_TOKEN
-  serverConstants.BLOG_INDEX_ID = serverConstants.normalizeId(
-    process.env.BLOG_INDEX_ID
-  )
+  loadEnvConfig(process.cwd())
+
+  const token = process.env.NOTION_TOKEN
+  const blogIndex = process.env.BLOG_INDEX_ID
+
+  if (!token || !blogIndex) {
+    throw new Error(`❌ NOTION_TOKEN ou BLOG_INDEX_ID não estão definidos.`)
+  }
+
+  serverConstants.NOTION_TOKEN = token
+  serverConstants.BLOG_INDEX_ID = serverConstants.normalizeId(blogIndex)
 
   const postsTable = await getBlogIndex(true)
-  const neededAuthors = new Set<string>()
 
+  if (!postsTable || Object.keys(postsTable).length === 0) {
+    throw new Error(
+      `❌ Nenhum post carregado. Verifique o ID do blog ou a API.`
+    )
+  }
+
+  const neededAuthors = new Set<string>()
   const blogPosts = Object.keys(postsTable)
     .map((slug) => {
       const post = postsTable[slug]
-      if (!postIsPublished(post)) return
-
-      post.authors = post.Authors || []
-
-      for (const author of post.authors) {
-        neededAuthors.add(author)
-      }
+      if (!postIsPublished(post)) return null
+      post.authors = post.Authors ?? []
+      post.authors.forEach((a: string) => neededAuthors.add(a))
       return post
     })
     .filter(Boolean)
@@ -99,7 +103,7 @@ async function main() {
   const { users } = await getNotionUsers([...neededAuthors])
 
   blogPosts.forEach((post) => {
-    post.authors = post.authors.map((id) => users[id])
+    post.authors = post.authors.map((id: string) => users[id])
     post.link = getBlogLink(post.Slug)
     post.title = post.Page
     post.date = post.Date
@@ -107,7 +111,10 @@ async function main() {
 
   const outputPath = './public/atom'
   await writeFile(resolve(outputPath), createRSS(blogPosts))
-  console.log(`Atom feed file generated at \`${outputPath}\``)
+  console.log(`✅ Atom feed gerado com sucesso: \`${outputPath}\``)
 }
 
-main().catch((error) => console.error(error))
+main().catch((err) => {
+  console.error('❌ Erro ao gerar RSS:', err)
+  process.exit(1)
+})
