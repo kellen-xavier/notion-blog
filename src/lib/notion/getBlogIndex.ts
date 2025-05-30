@@ -13,8 +13,11 @@ export default async function getBlogIndex(previews = true) {
   if (useCache) {
     try {
       postsTable = JSON.parse(await readFile(cacheFile, 'utf8'))
-    } catch (_) {
-      /* not fatal */
+    } catch (err) {
+      console.warn(
+        'Failed to load blog index cache, will generate new one:',
+        err
+      )
     }
   }
 
@@ -22,7 +25,7 @@ export default async function getBlogIndex(previews = true) {
     try {
       const data = await rpc('loadPageChunk', {
         pageId: BLOG_INDEX_ID,
-        limit: 100, // TODO: figure out Notion's way of handling pagination
+        limit: 100,
         cursor: { stack: [] },
         chunkNumber: 0,
         verticalColumns: false,
@@ -36,9 +39,10 @@ export default async function getBlogIndex(previews = true) {
       postsTable = await getTableData(tableBlock, true)
     } catch (err) {
       console.warn(
-        `Failed to load Notion posts, have you run the create-table script?`
+        `Failed to load Notion posts, have you run the create-table script?`,
+        err
       )
-      return {}
+      throw new Error('Failed to load Notion posts: ' + (err as Error).message)
     }
 
     // only get 10 most recent post's previews
@@ -49,7 +53,7 @@ export default async function getBlogIndex(previews = true) {
     if (previews) {
       await Promise.all(
         postsKeys
-          .sort((a, b) => {
+          .toSorted((a, b) => {
             const postA = postsTable[a]
             const postB = postsTable[b]
             const timeA = postA.Date
