@@ -7,7 +7,7 @@ import styles from '../styles/header.module.css'
 const navItems: { label: string; page?: string; link?: string }[] = [
   { label: 'Home', page: '/' },
   { label: 'Blog', page: '/blog' },
-  { label: 'Contact', page: '/contact' },
+  { label: 'Contato', page: '/contact' },
   { label: 'Source Code', link: 'https://github.com/ijjk/notion-blog' },
 ]
 
@@ -35,7 +35,10 @@ const Header = ({ titlePre = '' }) => {
           <li key={label}>
             {page ? (
               <Link href={page}>
-                <a className={pathname === page ? 'active' : undefined}>
+                <a
+                  href={page}
+                  className={pathname === page ? 'active' : undefined}
+                >
                   {label}
                 </a>
               </Link>
