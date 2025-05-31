@@ -240,8 +240,8 @@ const RenderPost = ({ post, redirect, preview }) => {
                       className={blogStyles.bookmarkContentsWrapper}
                       href={link}
                     >
-                      <div
-                        role="button"
+                      <button
+                        type="button"
                         className={blogStyles.bookmarkContents}
                       >
                         <div className={blogStyles.bookmarkInfo}>
@@ -255,6 +255,7 @@ const RenderPost = ({ post, redirect, preview }) => {
                             <img
                               src={icon}
                               className={blogStyles.bookmarkLinkIcon}
+                              alt={title ? `${title} icon` : ''}
                             />
                             <div className={blogStyles.bookmarkLink}>
                               {link}
@@ -267,11 +268,12 @@ const RenderPost = ({ post, redirect, preview }) => {
                               <img
                                 src={cover}
                                 className={blogStyles.bookmarkCover}
+                                alt={title ? `${title} cover` : ''}
                               />
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     </a>
                   </div>
                 </div>
@@ -338,6 +340,7 @@ const RenderPost = ({ post, redirect, preview }) => {
                     src={display_source}
                     key={!useWrapper ? id : undefined}
                     className={!useWrapper ? 'asset-wrapper' : undefined}
+                    title={`An ${isImage ? 'image' : 'video'} from Notion`}
                   />
                 )
               } else {

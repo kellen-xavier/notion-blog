@@ -4,13 +4,13 @@
     <subtitle>Blog</subtitle>
     <link href="/atom" rel="self" type="application/rss+xml"/>
     <link href="/" />
-    <updated>2025-05-30T03:16:49.770Z</updated>
+    <updated>2025-05-31T13:46:58.358Z</updated>
     <id>My Notion Blog</id>
     <entry>
       <id>/blog/meu-primeiro-post</id>
       <title>Teste - Sempre um teste</title>
       <link href="/blog/meu-primeiro-post"/>
-      <updated>2025-05-27T03:00:00.625Z</updated>
+      <updated>2025-05-27T03:00:01.633Z</updated>
       <content type="xhtml">
         <div xmlns="http://www.w3.org/1999/xhtml">
           <p>📝 Um parágrafo curto como introdução.</p><p>

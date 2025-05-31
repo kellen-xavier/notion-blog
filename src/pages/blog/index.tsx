@@ -24,7 +24,7 @@ export async function getStaticProps({ preview }) {
       if (!preview && !postIsPublished(post)) {
         return null
       }
-      post.Authors = post.Authors || []
+      post.Authors = post.Authors ?? []
       for (const author of post.Authors) {
         authorsToGet.add(author)
       }
@@ -34,13 +34,13 @@ export async function getStaticProps({ preview }) {
 
   const { users } = await getNotionUsers([...authorsToGet])
 
-  posts.map((post) => {
+  posts.forEach((post) => {
     post.Authors = post.Authors.map((id) => users[id].full_name)
   })
 
   return {
     props: {
-      preview: preview || false,
+      preview: preview ?? false,
       posts,
     },
     revalidate: 10,
@@ -89,7 +89,7 @@ const Index = ({ posts = [], preview }) => {
               <p>
                 {(!post.preview || post.preview.length === 0) &&
                   'No preview available'}
-                {(post.preview || []).map((block, idx) =>
+                {(post.preview ?? []).map((block, idx) =>
                   textBlock(block, true, `${post.Slug}${idx}`)
                 )}
               </p>
