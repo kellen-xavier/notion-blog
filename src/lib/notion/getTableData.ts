@@ -29,7 +29,7 @@ export default async function loadTable(collectionBlock: any, isPosts = false) {
       row.id = entry.value.id
     }
 
-    schemaKeys.forEach(key => {
+    schemaKeys.forEach((key) => {
       // might be undefined
       let val = props[key] && props[key][0][0]
 
@@ -84,11 +84,11 @@ export default async function loadTable(collectionBlock: any, isPosts = false) {
       if (typeof val === 'string') {
         val = val.trim()
       }
-      row[schema[key].name] = val || null
+      row[schema[key].name] = val ?? null
     })
 
     // auto-generate slug from title
-    row.Slug = normalizeSlug(row.Slug || slugger.slug(row.Page || ''))
+    row.Slug = normalizeSlug(row.Slug ?? slugger.slug(row.Page ?? ''))
 
     const key = row.Slug
     if (isPosts && !key) continue
