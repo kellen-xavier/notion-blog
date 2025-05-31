@@ -27,6 +27,9 @@ yarn-error.log*
 .blog_index_data
 .blog_index_data_previews
 
+# local env files
 .now
 .vercel
 .env
+.idea
+.vscode
