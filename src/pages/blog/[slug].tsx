@@ -34,8 +34,8 @@ export async function getStaticProps({ params: { slug }, preview }) {
   const postData = await getPageData(post.id)
   post.content = postData.blocks
 
-  for (let i = 0; i < postData.blocks.length; i++) {
-    const { value } = postData.blocks[i]
+  for (const element of postData.blocks) {
+    const { value } = element
     const { type, properties } = value
     if (type == 'tweet') {
       const src = properties.source[0][0]
@@ -153,10 +153,10 @@ const RenderPost = ({ post, redirect, preview }) => {
       <div className={blogStyles.post}>
         <h1>{post.Page || ''}</h1>
         {post.Authors.length > 0 && (
-          <div className="authors">By: {post.Authors.join(' ')}</div>
+          <div className="authors">Por: {post.Authors.join(' ')}</div>
         )}
         {post.Date && (
-          <div className="posted">Posted: {getDateStr(post.Date)}</div>
+          <div className="posted">Postado: {getDateStr(post.Date)}</div>
         )}
 
         <hr />
@@ -388,11 +388,12 @@ const RenderPost = ({ post, redirect, preview }) => {
             case 'sub_sub_header':
               renderHeading('h3')
               break
-            case 'bookmark':
+            case 'bookmark': {
               const { link, title, description } = properties
               const { format = {} } = value
               renderBookmark({ link, title, description, format })
               break
+            }
             case 'code': {
               if (properties.title) {
                 const content = properties.title[0][0]
