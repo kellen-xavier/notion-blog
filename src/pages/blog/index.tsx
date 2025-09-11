@@ -34,7 +34,7 @@ export async function getStaticProps({ preview }) {
 
   const { users } = await getNotionUsers([...authorsToGet])
 
-  posts.map((post) => {
+  posts.forEach((post) => {
     post.Authors = post.Authors.map((id) => users[id].full_name)
   })
 
@@ -75,9 +75,7 @@ const Index = ({ posts = [], preview }) => {
                   {!post.Published && (
                     <span className={blogStyles.draftBadge}>Draft</span>
                   )}
-                  <Link href="/blog/[slug]" as={getBlogLink(post.Slug)}>
-                    <a>{post.Page}</a>
-                  </Link>
+                  <Link href={getBlogLink(post.Slug)}>{post.Page}</Link>
                 </span>
               </h3>
               {post.Authors.length > 0 && (

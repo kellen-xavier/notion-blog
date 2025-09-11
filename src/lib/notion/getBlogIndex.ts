@@ -23,13 +23,18 @@ export default async function getBlogIndex(previews = true) {
 
   if (!postsTable) {
     try {
-      const data = await rpc('loadPageChunk', {
+      interface NotionResponse {
+        recordMap: {
+          block: Record<string, any>
+        }
+      }
+      const data = (await rpc('loadPageChunk', {
         pageId: BLOG_INDEX_ID,
         limit: 100,
         cursor: { stack: [] },
         chunkNumber: 0,
         verticalColumns: false,
-      })
+      })) as NotionResponse
 
       // Parse table with posts
       const tableBlock = values(data.recordMap.block).find(

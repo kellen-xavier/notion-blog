@@ -34,8 +34,8 @@ export async function getStaticProps({ params: { slug }, preview }) {
   const postData = await getPageData(post.id)
   post.content = postData.blocks
 
-  for (let i = 0; i < postData.blocks.length; i++) {
-    const { value } = postData.blocks[i]
+  for (const block of postData.blocks) {
+    const { value } = block
     const { type, properties } = value
     if (type == 'tweet') {
       const src = properties.source[0][0]
@@ -47,7 +47,7 @@ export async function getStaticProps({ params: { slug }, preview }) {
         const res = await fetch(
           `https://api.twitter.com/1/statuses/oembed.json?id=${tweetId}`
         )
-        const json = await res.json()
+        const json = (await res.json()) as { html: string }
         properties.html = json.html.split('<script')[0]
         post.hasTweet = true
       } catch (_) {
@@ -93,7 +93,7 @@ const RenderPost = ({ post, redirect, preview }) => {
       key: string
       isNested?: boolean
       nested: string[]
-      children: React.ReactFragment
+      children: React.ReactNode
     }
   } = {}
 
@@ -188,31 +188,31 @@ const RenderPost = ({ post, redirect, preview }) => {
             }
           }
 
+          const createListItem = (item) => {
+            return React.createElement(
+              components.li || 'ul',
+              { key: item.key },
+              item.children,
+              item.nested.length > 0 ? createNestedList(item) : null
+            )
+          }
+
+          const createNestedList = (item) => {
+            return React.createElement(
+              components.ul || 'ul',
+              { key: item + 'sub-list' },
+              item.nested.map((nestedId) => createListItem(listMap[nestedId]))
+            )
+          }
+
           if (listTagName && (isLast || !isList)) {
             toRender.push(
               React.createElement(
                 listTagName,
                 { key: listLastId! },
-                Object.keys(listMap).map((itemId) => {
-                  if (listMap[itemId].isNested) return null
-
-                  const createEl = (item) =>
-                    React.createElement(
-                      components.li || 'ul',
-                      { key: item.key },
-                      item.children,
-                      item.nested.length > 0
-                        ? React.createElement(
-                            components.ul || 'ul',
-                            { key: item + 'sub-list' },
-                            item.nested.map((nestedId) =>
-                              createEl(listMap[nestedId])
-                            )
-                          )
-                        : null
-                    )
-                  return createEl(listMap[itemId])
-                })
+                Object.keys(listMap)
+                  .filter((itemId) => !listMap[itemId].isNested)
+                  .map((itemId) => createListItem(listMap[itemId]))
               )
             )
             listMap = {}
@@ -220,7 +220,7 @@ const RenderPost = ({ post, redirect, preview }) => {
             listTagName = null
           }
 
-          const renderHeading = (Type: string | React.ComponentType) => {
+          const renderHeading = (Type: React.ElementType) => {
             toRender.push(
               <Heading key={id}>
                 <Type key={id}>{textBlock(properties.title, true, id)}</Type>
@@ -240,8 +240,8 @@ const RenderPost = ({ post, redirect, preview }) => {
                       className={blogStyles.bookmarkContentsWrapper}
                       href={link}
                     >
-                      <div
-                        role="button"
+                      <button
+                        type="button"
                         className={blogStyles.bookmarkContents}
                       >
                         <div className={blogStyles.bookmarkInfo}>
@@ -255,6 +255,7 @@ const RenderPost = ({ post, redirect, preview }) => {
                             <img
                               src={icon}
                               className={blogStyles.bookmarkLinkIcon}
+                              alt="Bookmark link icon"
                             />
                             <div className={blogStyles.bookmarkLink}>
                               {link}
@@ -267,11 +268,12 @@ const RenderPost = ({ post, redirect, preview }) => {
                               <img
                                 src={cover}
                                 className={blogStyles.bookmarkCover}
+                                alt="Bookmark cover"
                               />
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     </a>
                   </div>
                 </div>
@@ -338,6 +340,7 @@ const RenderPost = ({ post, redirect, preview }) => {
                     src={display_source}
                     key={!useWrapper ? id : undefined}
                     className={!useWrapper ? 'asset-wrapper' : undefined}
+                    title={`Embedded content from ${display_source}`}
                   />
                 )
               } else {
@@ -385,11 +388,12 @@ const RenderPost = ({ post, redirect, preview }) => {
             case 'sub_sub_header':
               renderHeading('h3')
               break
-            case 'bookmark':
+            case 'bookmark': {
               const { link, title, description } = properties
               const { format = {} } = value
               renderBookmark({ link, title, description, format })
               break
+            }
             case 'code': {
               if (properties.title) {
                 const content = properties.title[0][0]
