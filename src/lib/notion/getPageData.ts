@@ -1,5 +1,9 @@
 import rpc, { values } from './rpc'
 
+declare module './rpc' {
+  export default function rpc<T = any>(fnName: string, body: any): Promise<T>
+}
+
 interface RecordMap {
   block: {
     [key: string]: any
@@ -46,7 +50,7 @@ export function loadPageChunk({
   cursor = { stack: [] },
   chunkNumber = 0,
   verticalColumns = false,
-}: any) {
+}: any): Promise<PageChunkData> {
   return rpc('loadPageChunk', {
     pageId,
     limit,
