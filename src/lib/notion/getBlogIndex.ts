@@ -53,7 +53,8 @@ export default async function getBlogIndex(previews = true) {
     if (previews) {
       await Promise.all(
         postsKeys
-          .toSorted((a, b) => {
+          .slice()
+          .sort((a, b) => {
             const postA = postsTable[a]
             const postB = postsTable[b]
             const timeA = postA.Date
