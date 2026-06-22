@@ -6,7 +6,10 @@
     "start": "next start",
     "build": "next build && node .next/server/build-rss.js",
     "format": "prettier --write \"**/*.{js,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,sass}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{js,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,sass}\" --ignore-path .gitignore",
     "lint-staged": "lint-staged",
+    "typecheck": "tsc --noEmit",
+    "validate": "yarn format:check && yarn typecheck",
     "vercel-build": "ts-node src/lib/build-rss.ts && next build"
   },
   "pre-commit": "lint-staged",
