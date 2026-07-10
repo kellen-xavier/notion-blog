@@ -28,7 +28,7 @@ export async function getStaticProps({ params: { slug }, preview }) {
         redirect: '/blog',
         preview: false,
       },
-      unstable_revalidate: 5,
+      revalidate: 5,
     }
   }
   const postData = await getPageData(post.id)
@@ -39,17 +39,23 @@ export async function getStaticProps({ params: { slug }, preview }) {
     const { type, properties } = value
     if (type == 'tweet') {
       const src = properties.source[0][0]
-      // parse id from https://twitter.com/_ijjk/status/TWEET_ID format
+      // parse id from https://twitter.com/user/status/TWEET_ID format
       const tweetId = src.split('/')[5].split('?')[0]
       if (!tweetId) continue
 
       try {
+        // v1 statuses/oembed foi descontinuado; usamos o endpoint público
+        // de oembed do publish.twitter.com, que aceita a URL do tweet.
         const res = await fetch(
-          `https://api.twitter.com/1/statuses/oembed.json?id=${tweetId}`
+          `https://publish.twitter.com/oembed?omit_script=true&dnt=true&url=${encodeURIComponent(
+            src
+          )}`
         )
         const json = await res.json()
-        properties.html = json.html.split('<script')[0]
-        post.hasTweet = true
+        properties.html = (json.html || '').split('<script')[0]
+        if (properties.html) {
+          post.hasTweet = true
+        }
       } catch (_) {
         console.log(`Failed to get tweet embed for ${src}`)
       }

@@ -6,8 +6,8 @@ export default function Footer() {
       <span>Kellen Xavier</span>
       <span>
         {' '}
-        <ExtLink href="https://github.com/ijjk/notion-blog">
-          | Esse template encontra-se no GitHub
+        <ExtLink href="https://github.com/kellen-xavier/notion-blog">
+          | Código-fonte no GitHub
         </ExtLink>
       </span>
     </footer>
