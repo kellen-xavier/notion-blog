@@ -13,6 +13,24 @@ import getBlogIndex from '../../lib/notion/getBlogIndex'
 import getNotionUsers from '../../lib/notion/getNotionUsers'
 import { getBlogLink, getDateStr } from '../../lib/blog-helpers'
 
+// Busca o HTML de embed de um tweet via oembed público do X/Twitter.
+// v1 statuses/oembed foi descontinuado; usamos publish.twitter.com, que
+// aceita a URL do tweet. Retorna string vazia em caso de falha (não é fatal).
+async function resolveTweetHtml(src: string): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://publish.twitter.com/oembed?omit_script=true&dnt=true&url=${encodeURIComponent(
+        src
+      )}`
+    )
+    const json = await res.json()
+    return (json.html ?? '').split('<script')[0]
+  } catch (_) {
+    console.log(`Failed to get tweet embed for ${src}`)
+    return ''
+  }
+}
+
 // Get the data for each blog post
 export async function getStaticProps({ params: { slug }, preview }) {
   // load the postsTable so that we can get the page's ID
@@ -28,7 +46,7 @@ export async function getStaticProps({ params: { slug }, preview }) {
         redirect: '/blog',
         preview: false,
       },
-      unstable_revalidate: 5,
+      revalidate: 5,
     }
   }
   const postData = await getPageData(post.id)
@@ -39,19 +57,13 @@ export async function getStaticProps({ params: { slug }, preview }) {
     const { type, properties } = value
     if (type == 'tweet') {
       const src = properties.source[0][0]
-      // parse id from https://twitter.com/_ijjk/status/TWEET_ID format
+      // parse id from https://twitter.com/user/status/TWEET_ID format
       const tweetId = src.split('/')[5].split('?')[0]
       if (!tweetId) continue
 
-      try {
-        const res = await fetch(
-          `https://api.twitter.com/1/statuses/oembed.json?id=${tweetId}`
-        )
-        const json = await res.json()
-        properties.html = json.html.split('<script')[0]
+      properties.html = await resolveTweetHtml(src)
+      if (properties.html) {
         post.hasTweet = true
-      } catch (_) {
-        console.log(`Failed to get tweet embed for ${src}`)
       }
     }
   }
