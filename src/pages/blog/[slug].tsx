@@ -13,6 +13,24 @@ import getBlogIndex from '../../lib/notion/getBlogIndex'
 import getNotionUsers from '../../lib/notion/getNotionUsers'
 import { getBlogLink, getDateStr } from '../../lib/blog-helpers'
 
+// Busca o HTML de embed de um tweet via oembed público do X/Twitter.
+// v1 statuses/oembed foi descontinuado; usamos publish.twitter.com, que
+// aceita a URL do tweet. Retorna string vazia em caso de falha (não é fatal).
+async function resolveTweetHtml(src: string): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://publish.twitter.com/oembed?omit_script=true&dnt=true&url=${encodeURIComponent(
+        src
+      )}`
+    )
+    const json = await res.json()
+    return (json.html ?? '').split('<script')[0]
+  } catch (_) {
+    console.log(`Failed to get tweet embed for ${src}`)
+    return ''
+  }
+}
+
 // Get the data for each blog post
 export async function getStaticProps({ params: { slug }, preview }) {
   // load the postsTable so that we can get the page's ID
@@ -43,21 +61,9 @@ export async function getStaticProps({ params: { slug }, preview }) {
       const tweetId = src.split('/')[5].split('?')[0]
       if (!tweetId) continue
 
-      try {
-        // v1 statuses/oembed foi descontinuado; usamos o endpoint público
-        // de oembed do publish.twitter.com, que aceita a URL do tweet.
-        const res = await fetch(
-          `https://publish.twitter.com/oembed?omit_script=true&dnt=true&url=${encodeURIComponent(
-            src
-          )}`
-        )
-        const json = await res.json()
-        properties.html = (json.html || '').split('<script')[0]
-        if (properties.html) {
-          post.hasTweet = true
-        }
-      } catch (_) {
-        console.log(`Failed to get tweet embed for ${src}`)
+      properties.html = await resolveTweetHtml(src)
+      if (properties.html) {
+        post.hasTweet = true
       }
     }
   }
