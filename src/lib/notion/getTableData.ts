@@ -89,6 +89,17 @@ export default async function loadTable(collectionBlock: any, isPosts = false) {
             // initialize subtracting time zone offset
             val = new Date(providedDate - timezoneOffset).getTime()
             break
+          // 'b' (bold), 'i' (italic), 's' (strikethrough), 'c' (code),
+          // '_' (underline), 'h' (highlight): decorações de texto comuns
+          // em propriedades de título/texto — não são um "tipo" especial
+          // de valor, então val (já capturado acima) fica como está.
+          case 'b':
+          case 'i':
+          case 's':
+          case 'c':
+          case '_':
+          case 'h':
+            break
           default:
             console.error('unknown type', type[0], type)
             break

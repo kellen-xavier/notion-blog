@@ -15,9 +15,40 @@ export default async function rpc(fnName: string, body: any) {
   })
 
   if (res.ok) {
-    return res.json()
+    const data = await res.json()
+    if (data && data.recordMap) unwrapRecordMap(data.recordMap)
+    return data
   } else {
     throw new Error(await getError(res))
+  }
+}
+
+// A API privada do Notion passou a envolver cada entrada de recordMap
+// (block, collection, collection_view, notion_user, ...) num nível extra:
+// { value: { value: <dados reais>, role: <permissão> } }, em vez do formato
+// antigo { value: <dados reais>, role: <permissão> } que o resto do código
+// (getBlogIndex, getTableData, getPostPreview, [slug].tsx, getPageData)
+// espera. Normalizamos aqui, uma única vez na origem, em vez de mudar
+// `.value.type` para `.value.value.type` em cada consumidor.
+function unwrapRecordMap(recordMap: any) {
+  for (const tableName of Object.keys(recordMap)) {
+    const table = recordMap[tableName]
+    if (!table || typeof table !== 'object') continue
+
+    for (const id of Object.keys(table)) {
+      const entry = table[id]
+      const wrapped = entry && entry.value
+
+      const isDoubleWrapped =
+        wrapped &&
+        typeof wrapped === 'object' &&
+        'value' in wrapped &&
+        'role' in wrapped
+
+      if (isDoubleWrapped) {
+        entry.value = wrapped.value
+      }
+    }
   }
 }
 
