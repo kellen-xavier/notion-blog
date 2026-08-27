@@ -36,6 +36,15 @@ export default async function getBlogIndex(previews = true) {
         (block: any) => block.value.type === 'collection_view'
       )
 
+      if (!tableBlock) {
+        throw new Error(
+          `No collection_view (table) block was found on the page for ` +
+            `BLOG_INDEX_ID "${BLOG_INDEX_ID}". Check that BLOG_INDEX_ID ` +
+            `points to the page created by the create-table script, and ` +
+            `that NOTION_TOKEN still has access to it.`
+        )
+      }
+
       postsTable = await getTableData(tableBlock, true)
     } catch (err) {
       console.warn(
