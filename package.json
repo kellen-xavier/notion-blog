@@ -11,6 +11,7 @@
     "format": "prettier --write \"**/*.{js,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,sass}\" --ignore-path .gitignore",
     "typecheck": "tsc --noEmit",
     "test": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\",\"jsx\":\"react\"}' node --require ts-node/register --test test/*.test.ts",
+    "check-blog-index": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' node --require ts-node/register scripts/check-blog-index.ts",
     "lint-staged": "lint-staged",
     "vercel-build": "ts-node src/lib/build-rss.ts && next build"
   },
