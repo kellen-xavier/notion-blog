@@ -31,19 +31,26 @@ yarn start
 
 ## ⚙️ Variáveis de ambiente
 
-Crie um arquivo `.env.local` com:
+Copie o arquivo de exemplo e preencha com os valores reais:
+
+```bash
+cp .env.example .env.local
+```
 
 ```env
 NOTION_TOKEN=seu_token_do_notion
 BLOG_INDEX_ID=id_da_tabela_do_blog
 PREVIEW_TOKEN=um_segredo_aleatorio_so_seu
-
 ```
 
 > `PREVIEW_TOKEN` é usado apenas para liberar o modo preview (`/api/preview`).
 > Use um valor aleatório próprio (ex: `openssl rand -hex 32`) e **diferente** do
 > `NOTION_TOKEN` — assim, se o link de preview vazar, sua sessão do Notion
 > continua segura.
+>
+> ⚠️ `.env.local` nunca deve ser commitado (já está no `.gitignore`). Em
+> produção (Vercel), configure essas mesmas variáveis em
+> **Project Settings → Environment Variables**.
 
 ### Deploy esta configurado na Vercel
 
