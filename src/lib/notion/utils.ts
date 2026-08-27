@@ -1,4 +1,3 @@
-import crypto from 'crypto'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export function setHeaders(req: NextApiRequest, res: NextApiResponse): boolean {
@@ -28,26 +27,4 @@ export function handleError(res: NextApiResponse, error: string | Error) {
     status: 'error',
     message: 'an error occurred processing request',
   })
-}
-
-// Compares the preview token against PREVIEW_TOKEN (a secret dedicated to
-// unlocking preview mode) rather than NOTION_TOKEN, so a leaked preview
-// link can never expose the Notion session cookie. Uses a constant-time
-// comparison to avoid leaking the token via response-time differences.
-export function isValidPreviewToken(token: unknown): boolean {
-  const expected = process.env.PREVIEW_TOKEN
-
-  if (typeof token !== 'string' || !expected) return false
-
-  const tokenBuf = Buffer.from(token)
-  const expectedBuf = Buffer.from(expected)
-
-  if (tokenBuf.length !== expectedBuf.length) {
-    // still perform a comparison so the early return above is the only
-    // length-dependent timing signal, not this branch
-    crypto.timingSafeEqual(expectedBuf, expectedBuf)
-    return false
-  }
-
-  return crypto.timingSafeEqual(tokenBuf, expectedBuf)
 }

@@ -2,12 +2,10 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import getPageData from '../../lib/notion/getPageData'
 import getBlogIndex from '../../lib/notion/getBlogIndex'
 import { getBlogLink } from '../../lib/blog-helpers'
-import { isValidPreviewToken } from '../../lib/notion/utils'
+import { isPreviewAuthorized } from '../../lib/preview-auth'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (!isValidPreviewToken(req.query.token)) {
-    return res.status(401).json({ message: 'invalid token' })
-  }
+  if (!isPreviewAuthorized(req, res)) return
 
   if (typeof req.query.slug !== 'string') {
     return res.status(401).json({ message: 'invalid slug' })

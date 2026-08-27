@@ -6,6 +6,18 @@ import { normalizeSlug } from '../blog-helpers'
 export default async function loadTable(collectionBlock: any, isPosts = false) {
   const slugger = new Slugger()
 
+  // O Notion respondeu, mas não veio nenhum bloco "collection_view" (a tabela
+  // do blog). Sem esse guard, o destructuring abaixo estoura com um erro
+  // críptico ("Cannot destructure property 'value' of ..."). A causa mais
+  // comum é NOTION_TOKEN inválido/expirado (o token_v2 do Notion expira) ou
+  // BLOG_INDEX_ID apontando para a página errada.
+  if (!collectionBlock) {
+    throw new Error(
+      'Notion não retornou a tabela do blog (nenhum bloco "collection_view"). ' +
+        'Verifique NOTION_TOKEN (pode ter expirado) e BLOG_INDEX_ID.'
+    )
+  }
+
   const { value } = collectionBlock
   let table: any = {}
   const col = await queryCollection({

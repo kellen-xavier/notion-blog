@@ -1,12 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import getPageData from '../../lib/notion/getPageData'
 import getBlogIndex from '../../lib/notion/getBlogIndex'
-import { isValidPreviewToken } from '../../lib/notion/utils'
+import { isPreviewAuthorized } from '../../lib/preview-auth'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (!isValidPreviewToken(req.query.token)) {
-    return res.status(401).json({ message: 'invalid token' })
-  }
+  if (!isPreviewAuthorized(req, res)) return
 
   const postsTable = await getBlogIndex()
 
