@@ -29,9 +29,9 @@ export default async function loadTable(collectionBlock: any, isPosts = false) {
       row.id = entry.value.id
     }
 
-    schemaKeys.forEach(key => {
-      // might be undefined
-      let val = props[key] && props[key][0][0]
+    schemaKeys.forEach((key) => {
+      // might be undefined, or an empty array for a blank property
+      let val = props[key]?.[0]?.[0]
 
       // authors and blocks are centralized
       if (val && props[key][0][1]) {
@@ -48,8 +48,10 @@ export default async function loadTable(collectionBlock: any, isPosts = false) {
             break
           case 'p': // page (block)
             const page = col.recordMap.block[type[1]]
-            row.id = page.value.id
-            val = page.value.properties.title[0][0]
+            if (page?.value?.properties?.title) {
+              row.id = page.value.id
+              val = page.value.properties.title[0][0]
+            }
             break
           case 'd': // date
             // start_date: 2019-06-18

@@ -36,8 +36,14 @@ Crie um arquivo `.env.local` com:
 ```env
 NOTION_TOKEN=seu_token_do_notion
 BLOG_INDEX_ID=id_da_tabela_do_blog
+PREVIEW_TOKEN=um_segredo_aleatorio_so_seu
 
 ```
+
+> `PREVIEW_TOKEN` é usado apenas para liberar o modo preview (`/api/preview`).
+> Use um valor aleatório próprio (ex: `openssl rand -hex 32`) e **diferente** do
+> `NOTION_TOKEN` — assim, se o link de preview vazar, sua sessão do Notion
+> continua segura.
 
 ### Deploy esta configurado na Vercel
 

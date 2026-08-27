@@ -5,9 +5,7 @@ function render(expression: string, displayMode: boolean): string {
   try {
     result = renderToString(expression, { displayMode: displayMode })
   } catch (e) {
-    if (e instanceof ParseError) {
-      result = e.message
-    }
+    result = e instanceof ParseError ? e.message : 'Invalid equation'
     if (process.env.NODE_ENV !== 'production') {
       console.error(e)
     }

@@ -45,29 +45,28 @@ export default async function getBlogIndex(previews = true) {
       throw new Error('Failed to load Notion posts: ' + (err as Error).message)
     }
 
-    // only get 10 most recent post's previews
-    const postsKeys = Object.keys(postsTable).splice(0, 10)
+    // sort all posts by date (most recent first) before picking who gets a
+    // preview, so we always fetch the 10 most recent posts' previews
+    const postsKeys = Object.keys(postsTable)
+      .sort((a, b) => {
+        const timeA = postsTable[a].Date
+        const timeB = postsTable[b].Date
+        return Math.sign(timeB - timeA)
+      })
+      .splice(0, 10)
 
     const sema = new Sema(3, { capacity: postsKeys.length })
 
     if (previews) {
       await Promise.all(
-        postsKeys
-          .toSorted((a, b) => {
-            const postA = postsTable[a]
-            const postB = postsTable[b]
-            const timeA = postA.Date
-            const timeB = postB.Date
-            return Math.sign(timeB - timeA)
-          })
-          .map(async (postKey) => {
-            await sema.acquire()
-            const post = postsTable[postKey]
-            post.preview = post.id
-              ? await getPostPreview(postsTable[postKey].id)
-              : []
-            sema.release()
-          })
+        postsKeys.map(async (postKey) => {
+          await sema.acquire()
+          const post = postsTable[postKey]
+          post.preview = post.id
+            ? await getPostPreview(postsTable[postKey].id)
+            : []
+          sema.release()
+        })
       )
     }
 

@@ -103,7 +103,7 @@ async function main() {
   const { users } = await getNotionUsers([...neededAuthors])
 
   blogPosts.forEach((post) => {
-    post.authors = post.authors.map((id: string) => users[id])
+    post.authors = post.authors.map((id: string) => users[id]).filter(Boolean)
     post.link = getBlogLink(post.Slug)
     post.title = post.Page
     post.date = post.Date

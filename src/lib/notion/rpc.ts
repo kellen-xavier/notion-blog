@@ -31,9 +31,9 @@ export function getJSONHeaders(res: Response) {
   return JSON.stringify(res.headers.raw())
 }
 
-export function getBodyOrNull(res: Response) {
+export async function getBodyOrNull(res: Response) {
   try {
-    return res.text()
+    return await res.text()
   } catch (err) {
     return null
   }
@@ -42,7 +42,7 @@ export function getBodyOrNull(res: Response) {
 export function values(obj: any) {
   const vals: any = []
 
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     vals.push(obj[key])
   })
   return vals

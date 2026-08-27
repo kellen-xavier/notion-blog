@@ -15,11 +15,13 @@ export default async function getPageData(pageId: string) {
       data = await loadPageChunk({ pageId, chunkNumber, cursor: data.cursor })
       blocks = Object.assign(blocks, data.recordMap.block)
     }
+    // Non-content block types (e.g. the root "page" block, or a stray
+    // "collection_view") are already ignored by the renderer, so there's
+    // no need to guess-and-strip a fixed number of leading blocks here —
+    // doing so previously risked deleting real content whenever a post
+    // legitimately started with a block that has its own children
+    // (a list, toggle, callout, etc).
     const blockArray = values(blocks)
-    if (blockArray[0] && blockArray[0].value.content) {
-      // remove table blocks
-      blockArray.splice(0, 3)
-    }
     return { blocks: blockArray }
   } catch (err) {
     console.error(`Failed to load pageData for ${pageId}`, err)

@@ -231,7 +231,7 @@ const RenderPost = ({ post, redirect, preview }) => {
           const renderBookmark = ({ link, title, description, format }) => {
             const { bookmark_icon: icon, bookmark_cover: cover } = format
             toRender.push(
-              <div className={blogStyles.bookmark}>
+              <div className={blogStyles.bookmark} key={id}>
                 <div>
                   <div style={{ display: 'flex' }}>
                     <a

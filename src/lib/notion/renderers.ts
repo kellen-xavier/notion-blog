@@ -43,7 +43,6 @@ export function textBlock(text = [], noPTag = false, mainKey) {
   return React.createElement(
     noPTag ? React.Fragment : components.p,
     { key: mainKey },
-    ...children,
-    noPTag
+    ...children
   )
 }
